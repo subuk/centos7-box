@@ -1,0 +1,65 @@
+{
+    "push": {
+      "name": "subuk/centos7",
+      "vcs": true
+    },
+    "variables": {
+        "atlas_username": "{{env `ATLAS_USERNAME`}}",
+        "atlas_name": "{{env `ATLAS_NAME`}}"
+    },
+    "provisioners": [
+        {
+            "type": "shell",
+            "scripts": [
+                "scripts/base.sh",
+                "scripts/virtualbox.sh",
+                "scripts/vagrant.sh",
+                "scripts/cleanup.sh",
+                "scripts/zerodisk.sh"
+            ],
+            "override": {
+                "virtualbox-iso": {
+                    "execute_command": "echo 'vagrant'|sudo -S bash '{{.Path}}'"
+                }
+            }
+        }
+    ],
+    "builders": [
+        {
+            "type": "virtualbox-iso",
+            "boot_command": [
+                "<esc><esc><wait>",
+                "vmlinuz initrd=initrd.img inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg ",
+                "-- <enter>"
+            ],
+            "headless": true,
+            "boot_wait": "10s",
+            "disk_size": 20480,
+            "guest_os_type": "RedHat_64",
+            "http_directory": "http",
+            "iso_checksum": "f90e4d28fa377669b2db16cbcb451fcb9a89d2460e3645993e30e137ac37d284",
+            "iso_checksum_type": "sha256",
+            "iso_url": "http://mirror.yandex.ru/centos/7/isos/x86_64/CentOS-7-x86_64-Minimal-1511.iso",
+            "ssh_pty": true,
+            "ssh_username": "vagrant",
+            "ssh_password": "vagrant",
+            "ssh_port": 22,
+            "ssh_wait_timeout": "10000s",
+            "shutdown_command": "echo '/sbin/halt -h -p' > shutdown.sh; echo 'vagrant'|sudo -S bash 'shutdown.sh'",
+            "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+            "virtualbox_version_file": ".vbox_version",
+            "vboxmanage": [
+               ["modifyvm", "{{.Name}}", "--memory", "2048"],
+               ["modifyvm", "{{.Name}}", "--cpus", "2"],
+               ["modifyvm", "{{.Name}}", "--nictype1", "virtio"],
+               ["modifyvm", "{{.Name}}", "--nictype2", "virtio"]
+            ]
+        }
+    ],
+    "post-processors": [
+        [{
+            "type": "vagrant",
+            "keep_input_artifact": false
+        }]
+    ]
+}
