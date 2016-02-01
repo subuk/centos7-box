@@ -32,7 +32,7 @@
                 "vmlinuz initrd=initrd.img inst.ks=http://{{ .HTTPIP }}:{{ .HTTPPort }}/ks.cfg ",
                 "-- <enter>"
             ],
-            "headless": true,
+            "headless": false,
             "boot_wait": "10s",
             "disk_size": 20480,
             "guest_os_type": "RedHat_64",
